@@ -392,12 +392,14 @@ class SupabaseService {
   async getStats() {
     try {
       
+      const futureDate = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+      
       const [totalResult, urgentResult] = await Promise.all([
         supabase.from('food_items').select('id', { count: 'exact' }),
         supabase
           .from('food_items')
           .select('id', { count: 'exact' })
-          .lte('expiry_date', new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString().split(' clearly')[0])
+          .lte('expiry_date', futureDate)
       ])
 
       const totalItems = totalResult.count || 0

@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/lib/database';
+import { supabaseService } from '@/lib/supabase-service';
 
 export async function GET() {
   try {
-    const stats = db.getStats();
-    const expiringItems = db.getExpiringItems(3);
+    const stats = await supabaseService.getStats();
+    const expiringItems = await supabaseService.getExpiringItems(3);
     
     return NextResponse.json({
       ...stats,

@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/lib/database';
-import { format, addDays } from 'date-fns';
+import { supabaseService } from '@/lib/supabase-service';
 
 export async function GET() {
   try {
-    const items = db.getAllFoodItems();
+    const items = await supabaseService.getAllFoodItems();
     return NextResponse.json(items);
   } catch (error) {
     console.error('Error fetching food items:', error);
@@ -21,17 +20,22 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
-    const foodItem = db.addFoodItem({
+    // Convert camelCase to snake_case for Supabase
+    const foodItem = await supabaseService.addFoodItem({
       name: body.name,
       category: body.category,
       emoji: body.emoji,
-      expiryDate: body.expiryDate,
+      expiry_date: body.expiryDate,
       quantity: body.quantity || 1,
       unit: body.unit || 'piece',
-      imageUrl: body.imageUrl,
+      image_url: body.imageUrl,
       confidence: body.confidence,
       notes: body.notes,
     });
+
+    if (!foodItem) {
+      return NextResponse.json({ error: 'Failed to create food item' }, { status: 500 });
+    }
 
     return NextResponse.json(foodItem, { status: 201 });
   } catch (error) {
